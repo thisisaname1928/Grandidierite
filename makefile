@@ -14,6 +14,16 @@ LD=ld
 LD_X86_FLAGS=-m elf_i386 -O2 -nostdlib -T linker.ld
 LD_X86_64_FLAGS=-m elf_x86_64 -nostdlib -static -T linker.ld
 OUTPUT=grandidierite
+IMAGE=grandidierite.img
+
+test: $(IMAGE)
+	@qemu-system-x86_64 $< -m 1G
+
+$(IMAGE): $(OUTPUT)
+	@cp test.img $@
+	@cp $< tmp/kernel
+	@mcopy -i $@ tmp/kernel ::BOOT
+	@rm -f tmp/kernel 
 
 $(OUTPUT): $(X86_64OBJ)
 	@printf "\e[0;34m[\e[0m...\e[0;34m] Linking \e[1;36m$@\e[0m"
@@ -29,5 +39,6 @@ $(OUTPUT): $(X86_64OBJ)
 	@printf "\e[0;34m[\e[0m...\e[0;34m] ASM \e[1;36m$<\e[0m"
 	@$(ASM) $(ASM_X86_64_FLAGS) $< -o $@
 	@printf "\r\e[0;34m[DONE] ASM \e[1;36m$<\e[0m\n"
+
 clean:
-	rm $(shell find ./ -type f -name "*.o")
+	rm $(shell find ./ -type f -name "*.o") $(IMAGE) $(OUTPUT)

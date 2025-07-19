@@ -1,2 +1,5 @@
 grandidierite
+grandidierite.img
+tmp/kernel
+mnt
 *.o

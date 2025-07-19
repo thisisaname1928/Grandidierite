@@ -2,10 +2,10 @@
 
 uint16_t *buffer = (uint16_t *)0xb8000;
 uint16_t x = 0, y = 0;
-uint8_t col = 0xbf;
+uint8_t col = 0x0f;
 
 void putc(char c) {
-  buffer[x * 25 + 80] = c & (col << 8);
+  buffer[y * 80 + x] = c | (col << 8);
 
   x++;
 }
@@ -18,4 +18,8 @@ void print(const char *s) {
   }
 }
 
-extern "C" void kmain() { print("HIII"); }
+extern "C" void kmain() {
+  print("jsjsjsskks just boot into kernel!!!!");
+  for (;;) {
+  }
+}
