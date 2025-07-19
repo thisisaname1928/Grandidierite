@@ -13,7 +13,7 @@ ASM_X86_64_FLAGS=-f elf64
 LD=ld
 LD_X86_FLAGS=-m elf_i386 -O2 -nostdlib -T linker.ld
 LD_X86_64_FLAGS=-m elf_x86_64 -nostdlib -static -T linker.ld
-OUTPUT=gradidierite
+OUTPUT=grandidierite
 
 $(OUTPUT): $(X86_64OBJ)
 	@printf "\e[0;34m[\e[0m...\e[0;34m] Linking \e[1;36m$@\e[0m"
