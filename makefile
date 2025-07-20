@@ -6,7 +6,7 @@ X86_64SRC=$(foreach folder,$(X86_64CodeFolder),$(shell find ./$(folder) -type f 
 X86_64OBJ=$(patsubst %, %.x86_64.o, $(X86_64SRC))
 CXX=g++
 CXX_X86_FLAGS=-m32 -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -I ./
-CXX_X86_64_FLAGS=-I ./ -Wall -Wextra -ffreestanding -fno-stack-protector -fno-stack-check -fno-lto -fno-PIC -m64 -march=x86-64 -mno-80387 -mno-mmx -mno-sse -mno-sse2 -mno-red-zone -mcmodel=kernel
+CXX_X86_64_FLAGS=-I ./ -Wall -Wextra -ffreestanding -fno-exceptions -fno-stack-protector -fno-stack-check -fno-lto -fno-PIC -m64 -march=x86-64 -mno-80387 -mno-mmx -mno-sse -mno-sse2 -mno-red-zone -mcmodel=kernel -fno-rtti
 ASM=nasm
 ASM_X86_FLAGS=-f elf32
 ASM_X86_64_FLAGS=-f elf64
@@ -17,7 +17,7 @@ OUTPUT=grandidierite
 IMAGE=grandidierite.img
 
 test: $(IMAGE)
-	@qemu-system-x86_64 $< -m 1G
+	@qemu-system-x86_64 $< -m 1G -serial stdio
 
 $(IMAGE): $(OUTPUT)
 	@cp test.img $@

@@ -1,3 +1,5 @@
+#include "arch/amd64/amd64.hpp"
+#include "arch/arch.hpp"
 #include <cstdint>
 
 uint16_t *buffer = (uint16_t *)0xb8000;
@@ -20,6 +22,12 @@ void print(const char *s) {
 
 extern "C" void kmain() {
   print("jsjsjsskks just boot into kernel!!!!");
+
+  Amd64 archAMD64;
+  arch = &archAMD64;
+
+  arch->out(0x3F8, (uint8_t)'A');
+
   for (;;) {
   }
 }
