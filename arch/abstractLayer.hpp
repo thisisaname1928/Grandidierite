@@ -9,4 +9,5 @@ public:
   virtual uint8_t inb(uint16_t port) = 0;
   virtual uint16_t inw(uint16_t port) = 0;
   virtual uint32_t ind(uint16_t port) = 0;
+  virtual void init() = 0;
 };

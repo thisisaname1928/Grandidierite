@@ -10,4 +10,5 @@ public:
   uint8_t inb(uint16_t port) override;
   uint16_t inw(uint16_t port) override;
   uint32_t ind(uint16_t port) override;
+  void init() override;
 };

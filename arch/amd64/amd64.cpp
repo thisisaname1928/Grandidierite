@@ -1,4 +1,5 @@
 #include "amd64.hpp"
+#include "arch/amd64/interupt/IDT.hpp"
 #include <cstdint>
 
 Amd64::~Amd64() {}
@@ -32,3 +33,5 @@ uint32_t Amd64::ind(uint16_t port) {
   __asm__ volatile("inl %w1, %d0" : "=a"(res) : "Nd"(port) : "memory");
   return res;
 }
+
+void Amd64::init() { IDT64::initKernelIDTTab(); }
