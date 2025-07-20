@@ -13,9 +13,9 @@ extern "C" void loadIDT(uint64_t);
 namespace IDT64 {
 
 // align for faster access
-static IDT64 __attribute__((aligned(0x1000))) kernelIDTTab[256];
-static IDTR64 kernelIDTR = {.size = sizeof(kernelIDTTab),
-                            .offset = (uint64_t)&kernelIDTTab};
+IDT64 __attribute__((aligned(0x1000))) kernelIDTTab[256];
+IDTR64 kernelIDTR = {.size = sizeof(kernelIDTTab),
+                     .offset = (uint64_t)&kernelIDTTab};
 
 IDT64 createEntry(void *offset, uint16_t codeSegment, uint8_t IST,
                   uint8_t attribute) {

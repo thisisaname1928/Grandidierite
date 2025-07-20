@@ -24,7 +24,6 @@ void printv(const char *s) {
 
 extern "C" void kmain() {
   printv("jsjsjsskks just boot into kernel!!!!");
-  buffer[100] = 0x0f61;
 
   Amd64 archAMD64;
   archAMD64.init();
@@ -35,6 +34,7 @@ extern "C" void kmain() {
   print("HI I AM KERNEL\n");
   kprintf("... %b %c %s %ib %iw", (uint64_t)0xffff, 'c', "gudd", (uint8_t)-12,
           (uint16_t)-123);
+
   for (;;) {
   }
 }

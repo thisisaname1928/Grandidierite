@@ -11,4 +11,5 @@ public:
   uint16_t inw(uint16_t port) override;
   uint32_t ind(uint16_t port) override;
   void init() override;
+  void setInterrupt(int n, int type, int dpl, void *offset) override;
 };

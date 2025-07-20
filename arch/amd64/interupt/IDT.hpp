@@ -28,6 +28,9 @@ typedef struct __attribute__((packed)) {
   uint32_t reserved;
 } IDT64;
 
+extern IDT64 __attribute__((aligned(0x1000))) kernelIDTTab[256];
+IDT64 createEntry(void *offset, uint16_t codeSegment, uint8_t IST,
+                  uint8_t attribute);
 void initKernelIDTTab();
 
 } // namespace IDT64
