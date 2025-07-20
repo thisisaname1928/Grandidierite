@@ -26,19 +26,19 @@ $(IMAGE): $(OUTPUT)
 	@rm -f tmp/kernel 
 
 $(OUTPUT): $(X86_64OBJ)
-	@printf "\e[0;34m[\e[0m...\e[0;34m] Linking \e[1;36m$@\e[0m"
+	@printf "\e[0;34m[\e[0m...\e[0;34m]     Linking \e[1;36m$@\e[0m\r"
 	@$(LD) $(LD_X86_64_FLAGS) $(X86_64OBJ) -o $@
-	@printf "\r\e[0;34m[DONE] Linking \e[1;36m$@\e[0m\n"
+	@printf "\e[0;34m[DONE]    Linking \e[1;36m$@\e[0m\n"
 
 %.cpp.x86_64.o: %.cpp
-	@printf "\e[0;34m[\e[0m...\e[0;34m] CXX \e[1;36m$<\e[0m"
+	@printf "\e[0;34m[\e[0m...\e[0;34m]     CXX \e[1;36m$<\e[0m\r"
 	@$(CXX) $(CXX_X86_64_FLAGS) -c $< -o $@
-	@printf "\r\e[0;34m[DONE] CXX \e[1;36m$<\e[0m\n"
+	@printf "\e[0;34m[DONE]    CXX \e[1;36m$<\e[0m\n"
 
 %.asm.x86_64.o: %.asm
-	@printf "\e[0;34m[\e[0m...\e[0;34m] ASM \e[1;36m$<\e[0m"
+	@printf "\e[0;34m[\e[0m...\e[0;34m]     ASM \e[1;36m$<\e[0m\r"
 	@$(ASM) $(ASM_X86_64_FLAGS) $< -o $@
-	@printf "\r\e[0;34m[DONE] ASM \e[1;36m$<\e[0m\n"
+	@printf "\e[0;34m[DONE]    ASM \e[1;36m$<\e[0m\n"
 
 clean:
 	rm $(shell find ./ -type f -name "*.o") $(IMAGE) $(OUTPUT)

@@ -1,5 +1,7 @@
 #include "arch/amd64/amd64.hpp"
 #include "arch/arch.hpp"
+#include "driver/driver.hpp"
+#include "kprintf/kprintf.hpp"
 #include <cstdint>
 
 uint16_t *buffer = (uint16_t *)0xb8000;
@@ -12,7 +14,7 @@ void putc(char c) {
   x++;
 }
 
-void print(const char *s) {
+void printv(const char *s) {
   int i = 0;
   while (s[i] != 0) {
     putc(s[i]);
@@ -21,12 +23,16 @@ void print(const char *s) {
 }
 
 extern "C" void kmain() {
-  print("jsjsjsskks just boot into kernel!!!!");
+  printv("jsjsjsskks just boot into kernel!!!!");
 
   Amd64 archAMD64;
   arch = &archAMD64;
 
-  arch->out(0x3F8, (uint8_t)'A');
+  initDriver();
+
+  print("HI I AM KERNEL\n");
+  kprintf("... %b %c %s %ib %iw", (uint64_t)0xffff, 'c', "gudd", (uint8_t)-12,
+          (uint16_t)-123);
 
   for (;;) {
   }
