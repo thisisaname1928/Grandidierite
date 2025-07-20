@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace IDT64 {
+namespace AMD64 {
 
 #define INTERRUPT_GATE 0xe
 #define TRAP_GATE 0xf
@@ -33,4 +33,4 @@ IDT64 createEntry(void *offset, uint16_t codeSegment, uint8_t IST,
                   uint8_t attribute);
 void initKernelIDTTab();
 
-} // namespace IDT64
+} // namespace AMD64

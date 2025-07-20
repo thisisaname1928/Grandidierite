@@ -34,11 +34,11 @@ uint32_t Amd64::ind(uint16_t port) {
   return res;
 }
 
-void Amd64::init() { IDT64::initKernelIDTTab(); }
+void Amd64::init() { AMD64::initKernelIDTTab(); }
 
 void Amd64::setInterrupt(int n, int type, int dpl, void *offset) {
   if (type == Gradidierite::INTERRUPT_EXECEPTION) {
-    IDT64::kernelIDTTab[n] = IDT64::createEntry(
+    AMD64::kernelIDTTab[n] = AMD64::createEntry(
         offset, 0x8, 0, PRESENT | TRAP_GATE | ((uint8_t)dpl << 4));
   }
 }

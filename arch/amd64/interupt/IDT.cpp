@@ -10,7 +10,7 @@ extern "C" void IDTTest() {
 
 extern "C" void loadIDT(uint64_t);
 
-namespace IDT64 {
+namespace AMD64 {
 
 // align for faster access
 IDT64 __attribute__((aligned(0x1000))) kernelIDTTab[256];
@@ -45,4 +45,4 @@ void initKernelIDTTab() {
   loadIDT((uint64_t)&kernelIDTR);
 }
 
-} // namespace IDT64
+} // namespace AMD64
