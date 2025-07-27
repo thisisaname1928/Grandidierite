@@ -37,7 +37,7 @@ typedef struct {
 typedef struct {
   uint16_t revision;
   uint16_t firmwarePlatform;
-  framebuffer framebuffer;
+  framebuffer fb;
   uint64_t memoryMap;
   uint64_t memoryMapSize;
   uint64_t memoryDescSize;
