@@ -17,13 +17,13 @@ OUTPUT=grandidierite
 IMAGE=grandidierite.img
 
 test: $(IMAGE)
-	@qemu-system-x86_64 $< -m 1G -serial stdio
+	@qemu-system-x86_64 $< -m 1G -serial stdio -L ./OVMF -pflash ./OVMF/OVMF.4m.fd -enable-kvm
 
 $(IMAGE): $(OUTPUT)
 	@cp test.img $@
-	@cp $< tmp/kernel
-	@mcopy -i $@ tmp/kernel ::BOOT
-	@rm -f tmp/kernel 
+	@cp $< tmp/grand
+	@mcopy -i $@ tmp/grand ::BOOT
+	@rm -f tmp/grand
 
 $(OUTPUT): $(X86_64OBJ)
 	@printf "\e[0;34m[\e[0m...\e[0;34m]     Linking \e[1;36m$@\e[0m\r"

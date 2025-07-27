@@ -23,10 +23,8 @@ void printv(const char *s) {
 }
 
 extern "C" void kmain() {
-  printv("jsjsjsskks just boot into kernel!!!!");
-
   Amd64 archAMD64;
-  archAMD64.init();
+  // archAMD64.init();
   arch = &archAMD64;
 
   initDriver();
