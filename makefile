@@ -41,4 +41,4 @@ $(OUTPUT): $(X86_64OBJ)
 	@printf "\e[0;34m[DONE]    ASM \e[1;36m$<\e[0m\n"
 
 clean:
-	rm $(shell find ./ -type f -name "*.o") $(IMAGE) $(OUTPUT)
+	@rm -f $(X86_64OBJ) $(IMAGE) $(OUTPUT)

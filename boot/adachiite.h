@@ -46,4 +46,6 @@ typedef struct {
   uint64_t init;
   uint64_t initSize; // in bytes
 } AdachiiteBootInfo;
+
+extern AdachiiteBootInfo *adachiiteBootInfo;
 #endif

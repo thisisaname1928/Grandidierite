@@ -6,3 +6,6 @@ DebugAbstractLayer *debugDevice = &qemuSerialDebug;
 
 // init static driver class
 void initDriver() {}
+
+GrandidieriteDriverAbstractLayer::GrandidieriteDriverAbstractLayer() {}
+GrandidieriteDriverAbstractLayer::~GrandidieriteDriverAbstractLayer() {}
