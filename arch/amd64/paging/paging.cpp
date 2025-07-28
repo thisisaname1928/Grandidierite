@@ -1,6 +1,5 @@
 
 #include "arch/amd64/amd64.hpp"
-#include "kernel/kprintf/kprintf.hpp"
 #include <cstdint>
 
 extern "C" uint64_t getCr3();
@@ -44,7 +43,7 @@ bool Amd64::checkMappingAddress(uint64_t virtualAddress) {
   return PT[PTIndex] & 1;
 }
 
-uint64_t getPage(uint64_t virtualAddress) {
+uint64_t *getPage(uint64_t virtualAddress) {
   uint64_t *PML4 = (uint64_t *)getCr3();
   uint16_t PML4Index = (virtualAddress >> 39) & 0x1ff;
 
@@ -58,7 +57,7 @@ uint64_t getPage(uint64_t virtualAddress) {
     return 0;
 
   if ((PDP[PDPIndex] & HUGE_PAGE) == HUGE_PAGE)
-    return PDP[PDPIndex];
+    return &PDP[PDPIndex];
 
   uint64_t *PD = (uint64_t *)(truncAddress(PDP[PDPIndex]));
   uint16_t PDIndex = (virtualAddress >> 21) & 0x1ff;
@@ -67,12 +66,12 @@ uint64_t getPage(uint64_t virtualAddress) {
     return 0;
 
   if ((PD[PDIndex] & HUGE_PAGE) == HUGE_PAGE)
-    return PD[PDIndex];
+    return &PD[PDIndex];
 
   uint64_t *PT = (uint64_t *)(truncAddress(PD[PDIndex]));
   uint16_t PTIndex = (virtualAddress >> 12) & 0x1ff;
 
-  return PT[PTIndex];
+  return &PT[PTIndex];
 }
 
 // check if page available
@@ -81,8 +80,21 @@ bool Amd64::checkPageStatus(uint64_t virtualAddress) {
   if (!checkMappingAddress(virtualAddress))
     return true;
 
-  kprintf("%x\n", getPage(virtualAddress));
+  uint64_t *page = getPage(virtualAddress);
+  if (page == 0)
+    return 0;
 
   // I set bit 8 of PT as a sign if page used
-  return (getPage(virtualAddress) >> 8) & 1;
+  return (*page >> 8) & 1;
+}
+
+void Amd64::markPage(uint64_t virtualAddress, bool value) {
+  uint64_t *page = getPage(virtualAddress);
+  if (page != 0) {
+    if (value)
+      *page |= (1 << 8);
+    if (!value) {
+      *page &= ~(1 << 8);
+    }
+  }
 }

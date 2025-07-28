@@ -19,4 +19,6 @@ public:
   virtual bool checkMappingAddress(uint64_t virtualAddress) = 0;
   // this for checking if page is available
   virtual bool checkPageStatus(uint64_t virtualAddress) = 0;
+  // marked page, true -> used, false -> not
+  virtual void markPage(uint64_t virtualAddress, bool value) = 0;
 };

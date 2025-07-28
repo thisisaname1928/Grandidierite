@@ -15,4 +15,5 @@ public:
   void setInterrupt(int n, int type, int dpl, void *offset) override;
   bool checkMappingAddress(uint64_t virtualAddress) override;
   bool checkPageStatus(uint64_t virtualAddress) override;
+  void markPage(uint64_t virtualAddress, bool value) override;
 };

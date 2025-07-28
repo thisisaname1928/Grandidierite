@@ -43,6 +43,8 @@ extern "C" void kmain(AdachiiteBootInfo *info) {
 
   kprintf("free mem: %u MB\n", (uint64_t)freeMemLeft / 1024 / 1024);
 
+  archAMD64.markPage((uint64_t)kmain, true);
+  archAMD64.markPage((uint64_t)kmain + 4, false);
   uint64_t s = archAMD64.checkPageStatus((uint64_t)kmain);
   kprintf("check mapped memory %u\n", s);
 
