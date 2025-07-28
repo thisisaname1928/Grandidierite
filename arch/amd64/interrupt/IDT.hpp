@@ -6,7 +6,6 @@ namespace AMD64 {
 
 #define INTERRUPT_GATE 0xe
 #define TRAP_GATE 0xf
-#define TASK_GATE 0x5
 #define RING_0 0
 #define RING_1 (1 << 4)
 #define RING_2 (2 << 4)

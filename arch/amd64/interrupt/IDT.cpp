@@ -15,8 +15,8 @@ namespace AMD64 {
 
 // align for faster access
 IDT64 __attribute__((aligned(0x1000))) kernelIDTTab[256];
-IDTR64 kernelIDTR = {.size = sizeof(kernelIDTTab),
-                     .offset = (uint64_t)&kernelIDTTab};
+IDTR64 kernelIDTR = {.size = sizeof(IDT64) * 256,
+                     .offset = (uint64_t)kernelIDTTab};
 
 IDT64 createEntry(void *offset, uint16_t codeSegment, uint8_t IST,
                   uint8_t attribute) {
