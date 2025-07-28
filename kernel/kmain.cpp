@@ -24,18 +24,27 @@ extern "C" void kmain(AdachiiteBootInfo *info) {
 
   for (int x = 0; x < 255; x++)
     for (int y = 0; y < 255; y++)
-      GOP.putPixel(0xdeadbeef, x, y);
+      GOP.putPixel(0x545e7a, x, y);
 
   if (info == NULL) {
     kprintf("Grandidierite need Adachiite bootloader!\n");
   }
 
-  kprintf("framebuffer: %ux%u\n", info->fb.horizontalResolution,
-          info->fb.verticalResolution);
+  MemMapDesc *memmap = (MemMapDesc *)adachiiteBootInfo->memoryMap;
+  uint64_t curSize = 0;
+  uint64_t freeMemLeft = 0;
+  while (curSize < info->memoryMapSize) {
+    if (memmap->Type == USABLE)
+      freeMemLeft += memmap->NumberOfPages * 0x1000;
 
-  print("HI I AM KERNEL\n");
-  kprintf("... %b %c %s %ib %iw", (uint64_t)0xffff, 'c', "gudd", (uint8_t)-12,
-          (uint16_t)-123);
+    memmap = (MemMapDesc *)((char *)memmap + info->memoryDescSize);
+    curSize += info->memoryDescSize;
+  }
+
+  kprintf("free mem: %u MB\n", (uint64_t)freeMemLeft / 1024 / 1024);
+
+  uint64_t s = archAMD64.checkPageStatus((uint64_t)kmain);
+  kprintf("check mapped memory %u\n", s);
 
   for (;;) {
   }

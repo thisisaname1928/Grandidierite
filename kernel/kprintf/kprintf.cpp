@@ -34,7 +34,7 @@ char hexTransTab[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
 void printHex(uint64_t n) {
   print("0x");
   if (n == 0) {
-    print(0);
+    print("0");
     return;
   }
 
@@ -55,7 +55,7 @@ void printHex(uint64_t n) {
 void printBin(uint64_t n) {
   print("0b");
   if (n == 0) {
-    print(0);
+    print("0");
     return;
   }
 

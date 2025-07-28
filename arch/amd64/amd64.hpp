@@ -1,4 +1,5 @@
 #include "../abstractLayer.hpp"
+#include <cstdint>
 #pragma once
 
 class Amd64 : public ArchitectureAbstractLayer {
@@ -12,4 +13,6 @@ public:
   uint32_t ind(uint16_t port) override;
   void init() override;
   void setInterrupt(int n, int type, int dpl, void *offset) override;
+  bool checkMappingAddress(uint64_t virtualAddress) override;
+  bool checkPageStatus(uint64_t virtualAddress) override;
 };

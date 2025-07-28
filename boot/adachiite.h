@@ -43,7 +43,7 @@ typedef struct {
   uint64_t memoryDescSize;
   uint64_t kernelPhysicalAddress;
   uint64_t kernelSize; // in 4KB
-  uint64_t init;
+  uint64_t initPhysicalAddress;
   uint64_t initSize; // in bytes
 } AdachiiteBootInfo;
 

@@ -1,6 +1,6 @@
 #include "amd64.hpp"
 #include "arch/amd64/GDT/GDT.hpp"
-#include "arch/amd64/interupt/IDT.hpp"
+#include "arch/amd64/interrupt/IDT.hpp"
 #include <cstdint>
 
 Amd64::~Amd64() {}
@@ -36,7 +36,6 @@ uint32_t Amd64::ind(uint16_t port) {
 }
 
 void Amd64::init() {
-  AMD64::initGDT();
   AMD64::initGDT();
   AMD64::initKernelIDTTab();
 }

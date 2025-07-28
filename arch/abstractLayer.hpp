@@ -16,4 +16,7 @@ public:
   virtual uint32_t ind(uint16_t port) = 0;
   virtual void init() = 0;
   virtual void setInterrupt(int n, int type, int dpl, void *offset) = 0;
+  virtual bool checkMappingAddress(uint64_t virtualAddress) = 0;
+  // this for checking if page is available
+  virtual bool checkPageStatus(uint64_t virtualAddress) = 0;
 };
