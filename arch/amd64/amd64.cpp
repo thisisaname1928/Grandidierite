@@ -1,4 +1,5 @@
 #include "amd64.hpp"
+#include "arch/amd64/GDT/GDT.hpp"
 #include "arch/amd64/interupt/IDT.hpp"
 #include <cstdint>
 
@@ -34,7 +35,10 @@ uint32_t Amd64::ind(uint16_t port) {
   return res;
 }
 
-void Amd64::init() { AMD64::initKernelIDTTab(); }
+void Amd64::init() {
+  AMD64::initGDT();
+  AMD64::initKernelIDTTab();
+}
 
 void Amd64::setInterrupt(int n, int type, int dpl, void *offset) {
   if (type == Gradidierite::INTERRUPT_EXECEPTION) {

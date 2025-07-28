@@ -1,4 +1,5 @@
 #include "IDT.hpp"
+#include "arch/amd64/GDT/GDT.hpp"
 #include "kernel/kprintf/kprintf.hpp"
 #include <cstdint>
 
@@ -39,7 +40,7 @@ IDT64 createEntry(void *offset, uint16_t codeSegment, uint8_t IST,
 void initKernelIDTTab() {
   for (int i = 0; i < 256; i++) {
     kernelIDTTab[i] =
-        createEntry((void *)IDTTest, 0x8, 0, PRESENT | RING_0 | TRAP_GATE);
+        createEntry((void *)IDTTest, CS, 0, PRESENT | RING_0 | TRAP_GATE);
   }
 
   loadIDT((uint64_t)&kernelIDTR);

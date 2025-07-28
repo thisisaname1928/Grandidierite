@@ -1,4 +1,5 @@
 #include "../boot/adachiite.h"
+#include "arch/amd64/GDT/GDT.hpp"
 #include "arch/amd64/amd64.hpp"
 #include "arch/arch.hpp"
 #include "driver/driver.hpp"
@@ -9,6 +10,7 @@
 extern "C" void kmain(AdachiiteBootInfo *info) {
   Amd64 archAMD64;
   // archAMD64.init();
+  AMD64::initGDT();
   arch = &archAMD64;
 
   initDriver();

@@ -17,7 +17,7 @@ OUTPUT=grandidierite
 IMAGE=grandidierite.img
 
 test: $(IMAGE)
-	@qemu-system-x86_64 $< -m 1G -serial stdio -L ./OVMF -pflash ./OVMF/OVMF.4m.fd -enable-kvm
+	@qemu-system-x86_64 $< -m 1G -serial stdio -L ./OVMF -pflash ./OVMF/OVMF.4m.fd -enable-kvm -no-reboot -D log.txt -d int,guest_errors
 
 $(IMAGE): $(OUTPUT)
 	@cp test.img $@

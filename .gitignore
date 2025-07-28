@@ -3,3 +3,4 @@ grandidierite.img
 tmp/kernel
 mnt
 *.o
+log.txt

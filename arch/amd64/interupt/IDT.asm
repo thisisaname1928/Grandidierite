@@ -3,5 +3,7 @@ global loadIDT
 section .text
 ;rdi
 loadIDT:
-    lidt [rdi]
+    lgdt [rdi]
+
+.reload:
     ret
