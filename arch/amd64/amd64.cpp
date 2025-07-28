@@ -37,6 +37,7 @@ uint32_t Amd64::ind(uint16_t port) {
 
 void Amd64::init() {
   AMD64::initGDT();
+  AMD64::initGDT();
   AMD64::initKernelIDTTab();
 }
 

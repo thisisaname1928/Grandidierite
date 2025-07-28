@@ -9,7 +9,7 @@
 
 extern "C" void kmain(AdachiiteBootInfo *info) {
   Amd64 archAMD64;
-  // archAMD64.init();
+  archAMD64.init();
   AMD64::initGDT();
   arch = &archAMD64;
 
