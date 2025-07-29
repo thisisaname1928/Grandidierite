@@ -6,6 +6,8 @@
 #include "kprintf/kprintf.hpp"
 #include "mm/pageAllocation.hpp"
 #include <cstddef>
+#include <cstdint>
+#include <stdint.h>
 AdachiiteBootInfo *adachiiteBootInfo;
 
 extern "C" void kmain(AdachiiteBootInfo *info) {
@@ -28,6 +30,16 @@ extern "C" void kmain(AdachiiteBootInfo *info) {
   }
 
   MemoryManagement::pageAllocationInit();
+
+  int s = archAMD64.mapPage(0x600000, KERNEL_VIRTUAL_ADDRESS + 0x1000000);
+
+  if (!s)
+    kprintf("map page failed\n");
+  uint8_t *ptr1 = (uint8_t *)0x600000;
+  *ptr1 = '&';
+  uint8_t *ptr = (uint8_t *)(KERNEL_VIRTUAL_ADDRESS + 0x1000000);
+
+  kprintf("look what i got: %c %c", *ptr, *ptr1);
 
   for (;;) {
   }

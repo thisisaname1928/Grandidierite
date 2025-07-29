@@ -5,3 +5,8 @@ global getCr3
 getCr3:
     mov rax, cr3
     ret
+
+global reloadTLB
+reloadTLB:
+    invlpg [rdi]
+    ret

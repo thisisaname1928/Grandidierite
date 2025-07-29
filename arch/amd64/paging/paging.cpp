@@ -1,8 +1,11 @@
 
 #include "arch/amd64/amd64.hpp"
+#include "kernel/kprintf/kprintf.hpp"
 #include <cstdint>
+#include <stdint.h>
 
 extern "C" uint64_t getCr3();
+extern "C" void reloadTLB(uint64_t);
 #define HUGE_PAGE (1 << 7)
 
 uint64_t truncAddress(uint64_t value) { return value & 0xffffffffff000; }
@@ -97,4 +100,15 @@ void Amd64::markPage(uint64_t virtualAddress, bool value) {
       *page &= ~(1 << 8);
     }
   }
+}
+
+bool Amd64::mapPage(uint64_t physicalAddress, uint64_t virtualAddress) {
+  uint64_t *page = getPage(virtualAddress);
+  if (page == 0)
+    return false;
+
+  *page = (*page & ~truncAddress(*page)) | truncAddress(physicalAddress);
+  kprintf("%x\n", *page);
+  reloadTLB(virtualAddress);
+  return true;
 }

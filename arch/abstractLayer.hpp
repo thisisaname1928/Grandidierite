@@ -21,4 +21,7 @@ public:
   virtual bool checkPageStatus(uint64_t virtualAddress) = 0;
   // marked page, true -> used, false -> not
   virtual void markPage(uint64_t virtualAddress, bool value) = 0;
+  // map 4KB page at physical address, caller should make sure virtual address
+  // has been set up
+  virtual bool mapPage(uint64_t physicalAddress, uint64_t virtualAddress) = 0;
 };

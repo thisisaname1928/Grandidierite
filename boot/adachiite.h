@@ -2,6 +2,7 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
+#define KERNEL_VIRTUAL_ADDRESS 0xffffffff80000000
 typedef enum { BIOS = 1, UEFI = 2 } FIRMWARE_PLATFORM;
 typedef enum { FIRST_ADACHIITE = 0x11 } REVISION;
 

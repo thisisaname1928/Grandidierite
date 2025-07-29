@@ -16,4 +16,5 @@ public:
   bool checkMappingAddress(uint64_t virtualAddress) override;
   bool checkPageStatus(uint64_t virtualAddress) override;
   void markPage(uint64_t virtualAddress, bool value) override;
+  bool mapPage(uint64_t physicalAddress, uint64_t virtualAddress) override;
 };
