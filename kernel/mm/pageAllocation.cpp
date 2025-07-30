@@ -6,9 +6,12 @@
 
 namespace MemoryManagement {
 
+// set first bit of offset is 1
+#define HEADER_USED 1
+
 typedef struct {
   uint64_t offset;
-  uint64_t size;
+  uint64_t size; // in 4KB
 } BlockHeader;
 
 uint64_t freePages = 0;
@@ -17,6 +20,7 @@ uint64_t pageUsedByPA = 0;
 uint64_t blockHeadersPage = 0; // where block headers at
 
 uint64_t truncAddress(uint64_t value) { return value & 0xffffffffff000; }
+bool isHeaderUsed(BlockHeader hdr) { return (hdr.offset & 1) == 1; }
 
 bool pageAllocationInit() {
   // check how many pages are free
@@ -67,12 +71,29 @@ bool pageAllocationInit() {
   // init headers
   BlockHeader *hdrs = (BlockHeader *)blockHeadersPage;
   BlockHeader *subPtr = (BlockHeader *)(KERNEL_VIRTUAL_ADDRESS + 0x1f400000);
-  // map hdrs[i] address to 500MB above kernel virtAddr
+  // map hdrs[i] address to 500MB above kernel virtAddr then fill their offset
+  // with zero because we can't make sure that their memory region mapped 1:1
+  // we will use this alot
   for (uint64_t i = 0; i < numberOfBlocks; i++) {
     if (i % 256 == 0)
       arch->mapPage((uint64_t)&hdrs[i], KERNEL_VIRTUAL_ADDRESS + 0x1f400000);
 
     subPtr[i % 256].offset = i;
+  }
+
+  // loop through memmap again and find some info about free memory for the
+  // allocation
+  memmap = (MemMapDesc *)adachiiteBootInfo->memoryMap;
+  curSize = 0;
+  while (curSize < adachiiteBootInfo->memoryMapSize) {
+    if (memmap->Type == USABLE && memmap->NumberOfPages >= pageUsedByPA) {
+      blockHeadersPage = memmap->PhysicalStart;
+      found = true;
+      break;
+    }
+
+    memmap = (MemMapDesc *)((char *)memmap + adachiiteBootInfo->memoryDescSize);
+    curSize += adachiiteBootInfo->memoryDescSize;
   }
 
   return true;
