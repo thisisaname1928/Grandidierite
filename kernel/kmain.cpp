@@ -9,9 +9,12 @@
 #include <cstdint>
 #include <stdint.h>
 AdachiiteBootInfo *adachiiteBootInfo;
+// make a copy so paging stuffs wont affect it
+AdachiiteBootInfo bootInfo;
 
 extern "C" void kmain(AdachiiteBootInfo *info) {
-  adachiiteBootInfo = info;
+  bootInfo = *info;
+  adachiiteBootInfo = &bootInfo;
 
   Amd64 archAMD64;
   archAMD64.init();

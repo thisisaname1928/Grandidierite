@@ -108,7 +108,6 @@ bool Amd64::mapPage(uint64_t physicalAddress, uint64_t virtualAddress) {
     return false;
 
   *page = (*page & ~truncAddress(*page)) | truncAddress(physicalAddress);
-  kprintf("%x\n", *page);
   reloadTLB(virtualAddress);
   return true;
 }
