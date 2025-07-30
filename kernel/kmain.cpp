@@ -6,7 +6,6 @@
 #include "kprintf/kprintf.hpp"
 #include "mm/pageAllocation.hpp"
 #include <cstddef>
-#include <cstdint>
 #include <stdint.h>
 AdachiiteBootInfo *adachiiteBootInfo;
 // make a copy so paging stuffs wont affect it

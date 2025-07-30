@@ -132,9 +132,6 @@ bool pageAllocationInit() {
           uint16_t idx = mapBlockHeader(truncAddress(startAddress) / 4096);
           subPtr[idx].offset = startAddress;
           subPtr[idx].size = sz;
-          kprintf("[buddy]: pg: %u, offset: %x, size: %u\n",
-                  truncAddress(startAddress) / 4096, subPtr[idx].offset,
-                  subPtr[idx].size);
 
           // increase
           startAddress += sz * 4096;
@@ -145,14 +142,13 @@ bool pageAllocationInit() {
       uint16_t idx = mapBlockHeader(truncAddress(startAddress) / 4096);
       subPtr[idx].offset = startAddress;
       subPtr[idx].size = sz;
-      kprintf("[noUse]: pg: %u, offset: %x, size: %u\n",
-              truncAddress(startAddress) / 4096, subPtr[idx].offset,
-              subPtr[idx].size);
     }
 
     memmap = (MemMapDesc *)((char *)memmap + adachiiteBootInfo->memoryDescSize);
     curSize += adachiiteBootInfo->memoryDescSize;
   }
+
+  kprintf("pageAllocation said ok!\n");
 
   return true;
 }
