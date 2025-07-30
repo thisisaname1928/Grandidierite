@@ -14,7 +14,7 @@ typedef struct {
   uint64_t size; // in 4KB
 } BlockHeader;
 
-uint64_t freePages = 0;
+uint64_t pages = 0;
 uint64_t numberOfBlocks = 0;
 uint64_t pageUsedByPA = 0;
 uint64_t blockHeadersPage = 0; // where block headers at
@@ -56,12 +56,12 @@ bool isPowerOf2(uint64_t value) {
 }
 
 bool pageAllocationInit() {
-  // check how many pages are free
+  // check how many pages are in the memory
   MemMapDesc *memmap = (MemMapDesc *)adachiiteBootInfo->memoryMap;
   uint64_t curSize = 0;
   while (curSize < adachiiteBootInfo->memoryMapSize) {
+    pages += memmap->NumberOfPages;
     if (memmap->Type == USABLE) {
-      freePages += memmap->NumberOfPages;
       kprintf("%x: %u\n", memmap->PhysicalStart, memmap->NumberOfPages);
     }
 
@@ -70,13 +70,13 @@ bool pageAllocationInit() {
   }
 
   // calculate how many HeaderBlock need, at worst case, we will need number of
-  // freePages / 2
-  numberOfBlocks = freePages / 2;
+  // headers = pages
+  numberOfBlocks = pages;
   pageUsedByPA = (numberOfBlocks * sizeof(BlockHeader) / 4096);
   if ((numberOfBlocks * sizeof(BlockHeader)) % 4096 != 0)
     pageUsedByPA++;
-  kprintf("Number of free pages: %u, num of blocks: %u, page need: %u\n",
-          freePages, numberOfBlocks, pageUsedByPA);
+  kprintf("Number of pages: %u, num of blocks: %u, page need: %u\n", pages,
+          numberOfBlocks, pageUsedByPA);
 
   // loop through memmap again and find continuous area for block headers
   memmap = (MemMapDesc *)adachiiteBootInfo->memoryMap;
@@ -86,10 +86,6 @@ bool pageAllocationInit() {
     if (memmap->Type == USABLE && memmap->NumberOfPages >= pageUsedByPA) {
       blockHeadersPage = memmap->PhysicalStart;
       found = true;
-
-      // dug a hole in memMap
-      memmap->PhysicalStart += pageUsedByPA * 0x1000;
-      memmap->NumberOfPages -= pageUsedByPA;
       break;
     }
 
@@ -102,8 +98,8 @@ bool pageAllocationInit() {
     return false;
   }
 
-  kprintf("first block header start at: %x, size in bytes: %u\n",
-          blockHeadersPage, pageUsedByPA * 4096);
+  kprintf("first block header start at: %x, size of headers in MB: %u\n",
+          blockHeadersPage, pageUsedByPA * 4 / 1024);
 
   // init headers
   BlockHeader *hdrs = (BlockHeader *)blockHeadersPage;
@@ -118,25 +114,40 @@ bool pageAllocationInit() {
     subPtr[i % 256].offset = i;
   }
 
-  // loop through memmap again and find some info about free memory for the
+  // loop through memmap again and find some info about memory for the
   // allocation
   memmap = (MemMapDesc *)adachiiteBootInfo->memoryMap;
   curSize = 0;
   while (curSize < adachiiteBootInfo->memoryMapSize) {
-    uint64_t sz = 0;
+    uint64_t sz = memmap->NumberOfPages;
+    uint64_t startAddress = memmap->PhysicalStart;
     if (memmap->Type == USABLE) {
-      if (memmap->PhysicalStart != blockHeadersPage) {
-        sz = memmap->NumberOfPages;
-        while (sz > 0 && !isPowerOf2(sz))
+      // a loop to make sure all block are power of 2
+      while (sz > 1) {
+        uint64_t currentPageSize = sz; // make a backup of sz
+        while (sz > 1 && !isPowerOf2(sz))
           sz--;
-      }
 
-      if (sz > 0) {
-        uint16_t idx = mapBlockHeader(findFreeBlockHeader());
-        subPtr[idx].offset = memmap->PhysicalStart;
-        subPtr[idx].size = sz;
-        kprintf("offset: %x, size: %u\n", subPtr[idx].offset, subPtr[idx].size);
+        if (sz > 1) {
+          uint16_t idx = mapBlockHeader(truncAddress(startAddress) / 4096);
+          subPtr[idx].offset = startAddress;
+          subPtr[idx].size = sz;
+          kprintf("[buddy]: pg: %u, offset: %x, size: %u\n",
+                  truncAddress(startAddress) / 4096, subPtr[idx].offset,
+                  subPtr[idx].size);
+
+          // increase
+          startAddress += sz * 4096;
+          sz = currentPageSize - sz;
+        }
       }
+    } else { // we dont need to make sure it must be a power of 2
+      uint16_t idx = mapBlockHeader(truncAddress(startAddress) / 4096);
+      subPtr[idx].offset = startAddress;
+      subPtr[idx].size = sz;
+      kprintf("[noUse]: pg: %u, offset: %x, size: %u\n",
+              truncAddress(startAddress) / 4096, subPtr[idx].offset,
+              subPtr[idx].size);
     }
 
     memmap = (MemMapDesc *)((char *)memmap + adachiiteBootInfo->memoryDescSize);
