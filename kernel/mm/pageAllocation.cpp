@@ -20,7 +20,40 @@ uint64_t pageUsedByPA = 0;
 uint64_t blockHeadersPage = 0; // where block headers at
 
 uint64_t truncAddress(uint64_t value) { return value & 0xffffffffff000; }
-bool isHeaderUsed(BlockHeader hdr) { return (hdr.offset & 1) == 1; }
+bool isHeaderFree(BlockHeader hdr) { return (hdr.offset & 1) == 1; }
+
+uint64_t findFreeBlockHeader() {
+  BlockHeader *hdrs = (BlockHeader *)blockHeadersPage;
+  BlockHeader *subPtr = (BlockHeader *)(KERNEL_VIRTUAL_ADDRESS + 0x1f400000);
+  for (uint64_t i = 0; i < numberOfBlocks; i++) {
+    if (i % 256 == 0)
+      arch->mapPage((uint64_t)&hdrs[i], KERNEL_VIRTUAL_ADDRESS + 0x1f400000);
+
+    if (isHeaderFree(subPtr[i % 256])) {
+      return i;
+    }
+  }
+
+  kprintf("SO WRONG!\n");
+  return 0;
+}
+
+// map block header to KERNEL_VIRTUAL_ADDRESS + 0x1f400000
+uint16_t mapBlockHeader(uint64_t idx) {
+  BlockHeader *hdrs = (BlockHeader *)blockHeadersPage;
+  arch->mapPage((uint64_t)&hdrs[idx], KERNEL_VIRTUAL_ADDRESS + 0x1f400000);
+
+  // return the offset
+  return idx % 256;
+}
+
+bool isPowerOf2(uint64_t value) {
+  if (value == 1 || value == 0)
+    return false;
+
+  // like 0b1000 is power of 2, 0b1000 - 1 = 0b0111
+  return (value & (value - 1)) == 0;
+}
 
 bool pageAllocationInit() {
   // check how many pages are free
@@ -53,6 +86,10 @@ bool pageAllocationInit() {
     if (memmap->Type == USABLE && memmap->NumberOfPages >= pageUsedByPA) {
       blockHeadersPage = memmap->PhysicalStart;
       found = true;
+
+      // dug a hole in memMap
+      memmap->PhysicalStart += pageUsedByPA * 0x1000;
+      memmap->NumberOfPages -= pageUsedByPA;
       break;
     }
 
@@ -86,10 +123,20 @@ bool pageAllocationInit() {
   memmap = (MemMapDesc *)adachiiteBootInfo->memoryMap;
   curSize = 0;
   while (curSize < adachiiteBootInfo->memoryMapSize) {
-    if (memmap->Type == USABLE && memmap->NumberOfPages >= pageUsedByPA) {
-      blockHeadersPage = memmap->PhysicalStart;
-      found = true;
-      break;
+    uint64_t sz = 0;
+    if (memmap->Type == USABLE) {
+      if (memmap->PhysicalStart != blockHeadersPage) {
+        sz = memmap->NumberOfPages;
+        while (sz > 0 && !isPowerOf2(sz))
+          sz--;
+      }
+
+      if (sz > 0) {
+        uint16_t idx = mapBlockHeader(findFreeBlockHeader());
+        subPtr[idx].offset = memmap->PhysicalStart;
+        subPtr[idx].size = sz;
+        kprintf("offset: %x, size: %u\n", subPtr[idx].offset, subPtr[idx].size);
+      }
     }
 
     memmap = (MemMapDesc *)((char *)memmap + adachiiteBootInfo->memoryDescSize);
