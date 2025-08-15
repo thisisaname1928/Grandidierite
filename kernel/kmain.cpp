@@ -32,6 +32,8 @@ extern "C" void kmain(AdachiiteBootInfo *info) {
   }
 
   MemoryManagement::pageAllocationInit();
+  uint64_t a = 129;
+  MemoryManagement::allocPages(&a);
 
   for (;;) {
   }

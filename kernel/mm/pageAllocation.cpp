@@ -6,21 +6,22 @@
 
 namespace MemoryManagement {
 
-// set first bit of offset is 1
-#define HEADER_USED 1
+// use to mark some block isn't free
+#define NOT_FREE 1
 
 typedef struct {
   uint64_t offset;
   uint64_t size; // in 4KB
 } BlockHeader;
 
+// number of pages
 uint64_t pages = 0;
 uint64_t numberOfBlocks = 0;
 uint64_t pageUsedByPA = 0;
 uint64_t blockHeadersPage = 0; // where block headers at
 
 uint64_t truncAddress(uint64_t value) { return value & 0xffffffffff000; }
-bool isHeaderFree(BlockHeader hdr) { return (hdr.offset & 1) == 1; }
+bool isHeaderFree(BlockHeader hdr) { return (hdr.offset & 1) != 1; }
 
 uint64_t findFreeBlockHeader() {
   BlockHeader *hdrs = (BlockHeader *)blockHeadersPage;
@@ -118,10 +119,26 @@ bool pageAllocationInit() {
   // allocation
   memmap = (MemMapDesc *)adachiiteBootInfo->memoryMap;
   curSize = 0;
+  uint64_t lastBlockIdx = 0;
+  uint64_t lastBlockSz = 0;
   while (curSize < adachiiteBootInfo->memoryMapSize) {
     uint64_t sz = memmap->NumberOfPages;
     uint64_t startAddress = memmap->PhysicalStart;
+
+    if (lastBlockIdx == startAddress) // if first block have some free page
+      lastBlockSz = sz;
+
     if (memmap->Type == USABLE) {
+      if (memmap->PhysicalStart ==
+          blockHeadersPage) { // check if it used by allocator
+        uint16_t idx = mapBlockHeader(truncAddress(startAddress) / 4096);
+        subPtr[idx].offset = startAddress | NOT_FREE;
+        subPtr[idx].size = pageUsedByPA;
+
+        startAddress += pageUsedByPA * 4096;
+        sz = sz - pageUsedByPA;
+      }
+
       // a loop to make sure all block are power of 2
       while (sz > 1) {
         uint64_t currentPageSize = sz; // make a backup of sz
@@ -133,6 +150,9 @@ bool pageAllocationInit() {
           subPtr[idx].offset = startAddress;
           subPtr[idx].size = sz;
 
+          kprintf("[BUDDY]: offset: %x, size: %u\n",
+                  subPtr[idx].offset & ~0xfff, sz);
+
           // increase
           startAddress += sz * 4096;
           sz = currentPageSize - sz;
@@ -140,9 +160,25 @@ bool pageAllocationInit() {
       }
     } else { // we dont need to make sure it must be a power of 2
       uint16_t idx = mapBlockHeader(truncAddress(startAddress) / 4096);
-      subPtr[idx].offset = startAddress;
+      subPtr[idx].offset = startAddress | NOT_FREE;
       subPtr[idx].size = sz;
     }
+
+    if (lastBlockIdx * 4096 + lastBlockSz * 4096 !=
+        startAddress) { // make sure some memory gap is listed
+      uint16_t idx = mapBlockHeader(
+          lastBlockIdx + lastBlockSz); // get beginning page of the gap
+      subPtr[idx].offset =
+          (lastBlockIdx * 4096 + lastBlockSz * 4096) | NOT_FREE;
+      subPtr[idx].size =
+          (startAddress - (lastBlockIdx * 4096 + lastBlockSz * 4096)) / 4096;
+
+      kprintf("mem gap: offset=%x, sz=%u\n", subPtr[idx].offset & ~0xfff,
+              subPtr[idx].size);
+    }
+
+    lastBlockIdx = truncAddress(startAddress) / 4096;
+    lastBlockSz = sz;
 
     memmap = (MemMapDesc *)((char *)memmap + adachiiteBootInfo->memoryDescSize);
     curSize += adachiiteBootInfo->memoryDescSize;
@@ -151,6 +187,28 @@ bool pageAllocationInit() {
   kprintf("pageAllocation said ok!\n");
 
   return true;
+}
+
+void *allocPages(uint64_t *nPages) {
+  uint64_t i = 0;
+  BlockHeader *subPtr = (BlockHeader *)(KERNEL_VIRTUAL_ADDRESS + 0x1f400000);
+  while (i < pages) {
+    BlockHeader *hdrs = (BlockHeader *)blockHeadersPage;
+    if (i % 256 == 0)
+      arch->mapPage((uint64_t)&hdrs[i], KERNEL_VIRTUAL_ADDRESS + 0x1f400000);
+
+    if (isHeaderFree(subPtr[i % 256]) && subPtr[i % 256].size >= *nPages) {
+      break;
+    } else {
+      i += subPtr[i % 256].size;
+      kprintf("L: %x\n", i * 4096);
+    }
+  }
+
+  kprintf("use page %x, size=%u\n", i * 4096, subPtr[i % 256].size);
+
+  *nPages = 0;
+  return 0;
 }
 
 } // namespace MemoryManagement
